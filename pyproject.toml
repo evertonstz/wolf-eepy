@@ -1,0 +1,19 @@
+[project]
+name = "wolf-eepy"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "requests>=2.32.5",
+    "requests-unixsocket>=0.4.1",
+]
+
+[tool.setuptools]
+py-modules = ["main", "monitor", "healthcheck", "healthlock", "logging_config"]
+[project.scripts]
+wolf-eepy = "main:main"
+wolf-healthcheck = "healthcheck:main"
+
+[tool.uv]
+package = true
