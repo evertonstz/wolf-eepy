@@ -2,7 +2,6 @@
 import sys
 import fcntl
 import logging
-from logging_config import setup_logging
 from datetime import datetime, timezone
 
 import os
@@ -13,8 +12,7 @@ LOCKFILE = os.environ.get("HEALTHCHECK_LOCKFILE", "/tmp/wolf/healthstatus.lock")
 FRESHNESS_THRESHOLD_S = 120  # Consider stale if status older than 2 minutes
 
 
-def main():
-    setup_logging(level=logging.INFO)
+def healthcheck():
     try:
         with open(LOCKFILE, "r+") as f:
             try:
@@ -56,7 +54,3 @@ def main():
     except Exception as e:
         logging.error(f"UNHEALTHY: exception {e}")
         sys.exit(2)
-
-
-if __name__ == "__main__":
-    main()

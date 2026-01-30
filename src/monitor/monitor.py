@@ -5,7 +5,7 @@ import requests_unixsocket  # type: ignore
 import os
 import logging
 from typing import Optional
-from healthlock import HealthLockfile
+from .healthlock import HealthLockfile
 
 # Configuration
 SOCKET_PATH = "/var/run/wolf/wolf.sock"

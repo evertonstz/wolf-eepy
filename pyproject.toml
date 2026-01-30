@@ -10,10 +10,12 @@ dependencies = [
 ]
 
 [tool.setuptools]
-py-modules = ["main", "monitor", "healthcheck", "healthlock", "logging_config"]
+package-dir = {"" = "src"}
+py-modules = ["main"]
+
 [project.scripts]
-wolf-eepy = "main:main"
-wolf-healthcheck = "healthcheck:main"
+wolf-eepy-monitor = "main:monitor"
+wolf-eepy-healthcheck = "main:healthcheck"
 
 [tool.uv]
 package = true

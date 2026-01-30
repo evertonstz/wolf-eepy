@@ -1,33 +1,45 @@
 # Using python 3.14 as base image
-FROM python:3.14-slim
+FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim
 
 # 1. Install systemd and curl (needed for UV install)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    systemd curl \
+    systemd \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Install latest UV from official installer
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
-ENV PATH="/root/.local/bin:${PATH}"
-
-# Prevents Python from writing .pyc files to the container
-ENV PYTHONDONTWRITEBYTECODE=1
-# Ensures logs are sent straight to terminal without buffering
-ENV PYTHONUNBUFFERED=1
-
+# Install the project into `/app`
 WORKDIR /app
 
-# 3. Copy only config first to take advantage of Docker layer caching
-COPY pyproject.toml uv.lock .python-version ./
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
 
-# 4. Set up venv and install dependencies using uv only
-RUN uv venv && uv sync
+# Copy from the cache instead of linking since it's a mounted volume
+ENV UV_LINK_MODE=copy
 
-# 5. Copy in the rest of the code
-COPY . .
+# Omit development dependencies
+ENV UV_NO_DEV=1
+
+# Ensure installed tools can be executed out of the box
+ENV UV_TOOL_BIN_DIR=/usr/local/bin
+
+# Install the project's dependencies using the lockfile and settings
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project
+
+COPY README.md /app
+COPY LICENSE /app
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Reset the entrypoint, don't invoke `uv`
+ENTRYPOINT []
 
 HEALTHCHECK --interval=30s --timeout=6s --start-period=60s --retries=3 \
-  CMD uv run wolf-healthcheck || exit 1
+  CMD uv run wolf-eepy-healthcheck || exit 1
 
-CMD ["uv", "run", "wolf-eepy"]
+# Use uv to run the project entrypoint (keeps uv semantics and venv handling)
+CMD ["uv", "run", "wolf-eepy-monitor"]
