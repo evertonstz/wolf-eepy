@@ -12,7 +12,7 @@ WOLF_SOCKET_PATH = os.environ.get("WOLF_SOCKET_PATH", "/var/run/wolf/wolf.sock")
 CHECK_INTERVAL = int(os.environ.get("CHECK_INTERVAL", "30"))
 GRACE_PERIOD = int(os.environ.get("GRACE_PERIOD", "300"))
 
-WOLF_API_URL = f"http+unix://{WOLF_SOCKET_PATH.replace('/', '%2F')}/api/v1/sessions"
+WOLF_SESSIONS_API_URL = f"http+unix://{WOLF_SOCKET_PATH.replace('/', '%2F')}/api/v1/sessions"
 
 
 class WolfGuardian:
@@ -30,7 +30,7 @@ class WolfGuardian:
             if os.path.exists(WOLF_SOCKET_PATH):
                 try:
                     # Just a quick ping to see if the API is actually listening
-                    response = self.session.get(WOLF_API_URL, timeout=2)
+                    response = self.session.get(WOLF_SESSIONS_API_URL, timeout=2)
                     if response.status_code == 200:
                         logging.info("Status: Wolf API is UP. Starting monitor.")
                         self.wolf_ready = True
@@ -47,7 +47,7 @@ class WolfGuardian:
 
     def get_session_count(self) -> int:
         try:
-            response = self.session.get(WOLF_API_URL, timeout=5)
+            response = self.session.get(WOLF_SESSIONS_API_URL, timeout=5)
             response.raise_for_status()
             data = response.json()
             return len(data.get("sessions", []))
