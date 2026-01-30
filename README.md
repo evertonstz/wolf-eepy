@@ -25,7 +25,7 @@ services:
       - WOLF_SOCKET_PATH=/var/run/wolf/wolf.sock #set the socket location
       # ...other envs
     volumes:
-      - socket:/var/run/wolf:rw # mount the volume for the socket
+      - /var/run/wolf:/var/run/wolf:rw # mount the socket
       # ...other volumes
     # ...other settings
 
@@ -33,14 +33,11 @@ services:
     build: ./wolf-eepy
     container_name: wolf-eepy
     volumes:
-      - socket:/var/run/wolf:ro # mount the volume for the socket as read only
+      - /var/run/wolf:/var/run/wolf:ro # mount the socket as read only
       - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket:rw # Needed for system sleep inhibition
     network_mode: host # Needed for some D-Bus/systemd actions
     # privileged: true  # Use only if sleep inhibition fails without it (see below)
     restart: unless-stopped
-
-  volumes:
-    socket: #define a volume for the socket
 ```
 
 > **Note:**  
