@@ -35,6 +35,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PATH="/app/.venv/bin:$PATH"
 
+# Document runtime-configurable environment variables with sensible defaults
+# Users can override these at runtime (docker run -e, docker-compose, k8s env)
+ENV WOLF_SOCKET_PATH=/var/run/wolf/wolf.sock \
+    CHECK_INTERVAL=30 \
+    GRACE_PERIOD=300
+
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []
 

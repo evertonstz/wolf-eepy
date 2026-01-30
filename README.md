@@ -29,15 +29,17 @@ services:
       # ...other volumes
     # ...other settings
 
-  wolf-eepy:
-    build: ./wolf-eepy
-    container_name: wolf-eepy
-    volumes:
-      - /var/run/wolf:/var/run/wolf:ro # mount the socket as read only
-      - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket:rw # Needed for system sleep inhibition
-    network_mode: host # Needed for some D-Bus/systemd actions
-    # privileged: true  # Use only if sleep inhibition fails without it (see below)
-    restart: unless-stopped
+    wolf-eepy:
+      build: ./wolf-eepy
+      container_name: wolf-eepy
+      environment:
+      - WOLF_SOCKET_PATH=/var/run/wolf/wolf.sock #set the socket location
+      volumes:
+        - /var/run/wolf:/var/run/wolf:ro # mount the socket as read only
+        - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket:rw # Needed for system sleep inhibition
+      network_mode: host # Needed for some D-Bus/systemd actions
+      # privileged: true  # Use only if sleep inhibition fails without it (see below)
+      restart: unless-stopped
 ```
 
 > **Note:**  
@@ -69,8 +71,19 @@ docker run --rm \
   --network host \
   -v /var/run/wolf:/var/run/wolf:ro \
   -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
+  -e WOLF_SOCKET_PATH=/var/run/wolf/wolf.sock \
+  -e CHECK_INTERVAL=30 \
+  -e GRACE_PERIOD=300 \
   wolf-eepy
 ```
+
+## Environment Variables
+
+wolf-eepy is configurable via environment variables. Defaults are set in the image but can be overridden at runtime.
+
+- `WOLF_SOCKET_PATH` (string) — path to Wolf UNIX socket; default `/var/run/wolf/wolf.sock`
+- `CHECK_INTERVAL` (int seconds) — how often to poll Wolf for sessions; default `30`
+- `GRACE_PERIOD` (int seconds) — seconds to wait after sessions end before releasing inhibition; default `300`
 
 ---
 

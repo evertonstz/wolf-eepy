@@ -8,10 +8,11 @@ from typing import Optional
 from .healthlock import HealthLockfile
 
 # Configuration
-SOCKET_PATH = "/var/run/wolf/wolf.sock"
-CHECK_INTERVAL = 30
-GRACE_PERIOD = 300
-WOLF_API_URL = f"http+unix://{SOCKET_PATH.replace('/', '%2F')}/api/v1/sessions"
+WOLF_SOCKET_PATH = os.environ.get("WOLF_SOCKET_PATH", "/var/run/wolf/wolf.sock")
+CHECK_INTERVAL = int(os.environ.get("CHECK_INTERVAL", "30"))
+GRACE_PERIOD = int(os.environ.get("GRACE_PERIOD", "300"))
+
+WOLF_API_URL = f"http+unix://{WOLF_SOCKET_PATH.replace('/', '%2F')}/api/v1/sessions"
 
 
 class WolfGuardian:
@@ -24,9 +25,9 @@ class WolfGuardian:
 
     def wait_for_wolf(self) -> None:
         """Polls until the socket exists and the API responds with 200 OK."""
-        logging.info(f"Status: Waiting for Wolf socket at {SOCKET_PATH}...")
+        logging.info(f"Status: Waiting for Wolf socket at {WOLF_SOCKET_PATH}...")
         while not self.wolf_ready:
-            if os.path.exists(SOCKET_PATH):
+            if os.path.exists(WOLF_SOCKET_PATH):
                 try:
                     # Just a quick ping to see if the API is actually listening
                     response = self.session.get(WOLF_API_URL, timeout=2)

@@ -9,7 +9,7 @@ import os
 LOCKFILE = os.environ.get("HEALTHCHECK_LOCKFILE", "/tmp/wolf/healthstatus.lock")
 
 
-FRESHNESS_THRESHOLD_S = 120  # Consider stale if status older than 2 minutes
+FRESHNESS_THRESHOLD_S = int(os.environ.get("GRACE_PERIOD", "300")) / 2
 
 
 def healthcheck():
