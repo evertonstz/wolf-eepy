@@ -30,8 +30,7 @@ services:
     # ...other settings
 
     wolf-eepy:
-      build: ./wolf-eepy
-      container_name: wolf-eepy
+      image: ghcr.io/evertonstz/wolf-eepy:latest
       environment:
       - WOLF_SOCKET_PATH=/var/run/wolf/wolf.sock #set the socket location
       volumes:
