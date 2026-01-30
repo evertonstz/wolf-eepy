@@ -1,4 +1,4 @@
-# 🐺 wolf-eepy: Active Session Power Inhibitor for Wolf
+# 🐺 💤 wolf-eepy: Active Session Power Inhibitor for Wolf
 
 **wolf-eepy** is a companion service for the [Wolf](https://github.com/games-on-whales/wolf) cloud gaming system. Its job is to prevent host suspension/hibernations while Wolf game sessions ae active — ensuring smooth, uninterrupted play.
 
