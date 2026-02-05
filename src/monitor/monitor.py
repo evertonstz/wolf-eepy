@@ -12,7 +12,9 @@ WOLF_SOCKET_PATH = os.environ.get("WOLF_SOCKET_PATH", "/var/run/wolf/wolf.sock")
 CHECK_INTERVAL = int(os.environ.get("CHECK_INTERVAL", "30"))
 GRACE_PERIOD = int(os.environ.get("GRACE_PERIOD", "300"))
 
-WOLF_SESSIONS_API_URL = f"http+unix://{WOLF_SOCKET_PATH.replace('/', '%2F')}/api/v1/sessions"
+WOLF_SESSIONS_API_URL = (
+    f"http+unix://{WOLF_SOCKET_PATH.replace('/', '%2F')}/api/v1/sessions"
+)
 
 
 class WolfGuardian:
@@ -105,3 +107,11 @@ class WolfGuardian:
                     if (time.time() - self.idle_since) >= GRACE_PERIOD:
                         self.release()
             time.sleep(CHECK_INTERVAL)
+            # Refresh the health lockfile timestamp so external healthcheck
+            # processes see the monitor is still alive. We write 'healthy'
+            # when we've verified the Wolf API is ready, otherwise 'warning'.
+            try:
+                status = "healthy" if self.wolf_ready else "warning"
+                self.healthlock.write_status(status)
+            except Exception:
+                logging.exception("Failed to refresh health status")
