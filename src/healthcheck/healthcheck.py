@@ -22,8 +22,14 @@ def healthcheck():
             except BlockingIOError:
                 # Lock is held -> process running
                 f.seek(0)
-                line = f.readline().strip()
-                if not line or "|" not in line:
+                # Read the most recent non-empty line (last written status).
+                contents = f.read()
+                lines = [l.strip() for l in contents.splitlines() if l.strip()]
+                if not lines:
+                    logging.error("UNHEALTHY: status line missing or malformed")
+                    sys.exit(2)
+                line = lines[-1]
+                if "|" not in line:
                     logging.error("UNHEALTHY: status line missing or malformed")
                     sys.exit(2)
                 status, ts = line.split("|", 1)
